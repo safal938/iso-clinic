@@ -3231,6 +3231,42 @@ function Canvas2() {
           }
         `}
       </style>
+      
+      {/* Back to Clinic Button */}
+      <button
+        onClick={() => window.location.href = '/'}
+        style={{
+          position: 'absolute',
+          top: 20,
+          left: 20,
+          zIndex: 1000,
+          padding: '12px 20px',
+          background: 'linear-gradient(135deg, #0288d1 0%, #03a9f4 100%)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '12px',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 4px 12px rgba(2, 136, 209, 0.3)',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.boxShadow = '0 6px 16px rgba(2, 136, 209, 0.4)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(2, 136, 209, 0.3)';
+        }}
+      >
+        <span style={{ fontSize: '18px' }}>←</span>
+        Back to Clinic
+      </button>
+      
       <ReactFlowWrapper sidebarOpen={showAgentChat} isPanning={isSpacePressed}>
         <ReactFlow
           nodes={nodes}
