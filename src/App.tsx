@@ -8,6 +8,7 @@ import InvisibleConnectorExample from "./components/InvisibleConnectorExample";
 import MeetSidePanel from "./components/MeetSidePanel";
 import MeetMainStage from "./components/MeetMainStage";
 import IsometricMap from "./components/isoclinic/IsometricMap";
+import NurseSimApp from "./components/nurse-sim/NurseSimApp";
 import boardItemsData from "./data/boardItems.json";
 
 const AppContainer = styled.div`
@@ -29,6 +30,7 @@ function App() {
         <Route path="/canvas4" element={<Canvas4 />} />
         <Route path="/invisible-connector" element={<InvisibleConnectorExample />} />
         <Route path="/board" element={<BoardApp />} />
+        <Route path="/nurse-sim" element={<NurseSimApp />} />
         <Route path="/" element={<IsometricMap />} />
       </Routes>
     </Router>

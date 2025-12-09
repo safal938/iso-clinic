@@ -7,14 +7,11 @@ export enum RoomType {
   ENTRANCE = 'Entrance',
   TELEMEDICINE = 'Telemedicine',
   WAITING = 'Waiting Room',
-  HALLWAY = 'Hallway',
   NURSE = 'Nurse Station',
   HEPATOLOGIST = 'Hepatologist',
   MONITORING = 'Monitoring AI',
   EXIT = 'Exit'
 }
-
-export type PropType = 'desk' | 'chair' | 'bed' | 'plant' | 'server' | 'shelf' | 'sofa' | 'reception_desk' | 'mri';
 
 export interface RoomDef {
   id: string;
@@ -27,20 +24,21 @@ export interface RoomDef {
   color: string;
   wallColor: string;
   floorColor: string;
-  nextRooms?: string[];
-  closedWalls?: string[];
-  doorWalls?: string[];
-  openWalls?: string[];
+  labelColor?: string;
 }
 
 export interface Patient {
   id: string;
   type: 'patient';
-  currentRoomId: string;
-  targetRoomId: string | null;
-  progress: number;
-  color: string;
+  gridX: number;
+  gridY: number;
   path: Point[];
+  targetX?: number;
+  targetY?: number;
+  state: 'entering' | 'waiting' | 'to_nurse' | 'at_nurse' | 'to_doc' | 'at_doc' | 'to_monitoring' | 'at_monitoring' | 'exiting';
+  assignedStaffId?: string;
+  waitTimer: number;
+  color: string;
   facing: 'left' | 'right';
 }
 
@@ -56,11 +54,9 @@ export interface Staff {
   color?: string;
 }
 
-export interface StaticPatient {
+export interface ChatMessage {
   id: string;
-  roomId: string;
-  gridX: number;
-  gridY: number;
-  facing: 'left' | 'right';
-  color: string;
+  role: 'user' | 'model';
+  text: string;
+  timestamp: Date;
 }

@@ -3240,30 +3240,32 @@ function Canvas2() {
           top: 20,
           left: 20,
           zIndex: 1000,
-          padding: '12px 20px',
-          background: 'linear-gradient(135deg, #0288d1 0%, #03a9f4 100%)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '12px',
+          padding: '8px 14px',
+          background: 'rgba(255, 255, 255, 0.9)',
+          color: '#64748b',
+          border: '1px solid rgba(0, 0, 0, 0.08)',
+          borderRadius: '8px',
           cursor: 'pointer',
-          fontSize: '14px',
-          fontWeight: 600,
+          fontSize: '13px',
+          fontWeight: 500,
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
-          boxShadow: '0 4px 12px rgba(2, 136, 209, 0.3)',
+          gap: '6px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
           transition: 'all 0.2s ease',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.boxShadow = '0 6px 16px rgba(2, 136, 209, 0.4)';
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 1)';
+          e.currentTarget.style.color = '#475569';
+          e.currentTarget.style.borderColor = 'rgba(0, 0, 0, 0.12)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(2, 136, 209, 0.3)';
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)';
+          e.currentTarget.style.color = '#64748b';
+          e.currentTarget.style.borderColor = 'rgba(0, 0, 0, 0.08)';
         }}
       >
-        <span style={{ fontSize: '18px' }}>←</span>
+        <span style={{ fontSize: '16px' }}>←</span>
         Back to Clinic
       </button>
       

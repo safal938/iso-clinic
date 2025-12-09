@@ -1,249 +1,109 @@
-import { RoomType, PropType, Staff } from '../types/isoclinic';
+import { RoomDef, RoomType, Staff, Patient } from '../types/isoclinic';
 
 export const TILE_WIDTH = 64;
 export const TILE_HEIGHT = 32;
-export const WALL_HEIGHT = 80;
-export const PATIENT_SPEED = 0.003;
-export const SPAWN_RATE_MS = 3500;
+export const WALL_HEIGHT = 120;
 
-export interface PropDef {
-  type: PropType;
-  xOffset: number;
-  yOffset: number;
-  rotation?: 'none' | 'left' | 'right';
+export const PATIENT_SPEED = 0.15;
+export const SPAWN_RATE_TICKS = 180;
+export const WAITING_TIME_TICKS = 120;
+export const TREATMENT_TIME_TICKS = 300;
+
+export interface ExtendedRoomDef extends RoomDef {
+  labelColor?: string;
 }
 
-export interface ExtendedRoomDef {
-  id: string;
-  name: string;
-  type: RoomType;
-  gridX: number;
-  gridY: number;
-  width: number;
-  height: number;
-  color: string;
-  wallColor: string;
-  floorColor: string;
-  nextRooms?: string[];
-  closedWalls?: string[];
-  doorWalls?: string[];
-  openWalls?: string[];
-  props: PropDef[];
-}
+const COL_PRE_CONSULT = '#93c5fd';
+const COL_WAITING = '#d8b4fe';
+const COL_NURSE = '#67e8f9';
+const COL_HEPA = '#fca5a5';
+const COL_TELE_NURSE = '#cffafe';
+const COL_MONITORING = '#fca5a5';
 
-export const STAFF: Staff[] = [
-  { id: 'recep1', type: 'admin', roomId: 'entrance', gridX: 3.5, gridY: 1.5, facing: 'right', name: 'Receptionist', isSeated: false, color: '#fed7aa' },
-  { id: 'tele_staff', type: 'admin', roomId: 'telemedicine', gridX: 4.5, gridY: 3.5, facing: 'right', name: 'Telehealth Coordinator', isSeated: true, color: '#bfdbfe' },
-  { id: 'nurse_a', type: 'nurse', roomId: 'nurse1', gridX: 5, gridY: 5, facing: 'left', name: 'Nurse Joy', isSeated: false },
-  { id: 'nurse_b', type: 'nurse', roomId: 'nurse2', gridX: 5, gridY: 5, facing: 'right', name: 'Nurse Lee', isSeated: false },
-  { id: 'nurse_c', type: 'nurse', roomId: 'nurse3', gridX: 5, gridY: 5, facing: 'right', name: 'Nurse Ray', isSeated: false },
-  { id: 'doc1', type: 'doctor', roomId: 'hepatologist', gridX: 4.5, gridY: 6.5, facing: 'right', name: 'Dr. House', isSeated: false },
-  { id: 'tech1', type: 'tech', roomId: 'monitoring', gridX: 5.5, gridY: 6.5, facing: 'right', name: 'AI Tech', isSeated: false, color: '#000000'},
-];
+export const MAIN_ROOM = { x: 24, y: 24, w: 45, h: 45 };
 
-export const STATIC_PATIENTS = [
-  { id: 'patient_reception', roomId: 'entrance', gridX: 4.5, gridY: 3.5, facing: 'left' as const, color: '#858585ff' },
-  { id: 'patient_nurse1', roomId: 'nurse1', gridX: 4, gridY: 3, facing: 'right' as const, color: '#858585ff' },
-  { id: 'patient_nurse2', roomId: 'nurse2', gridX: 4, gridY: 6, facing: 'right' as const, color: '#858585ff' },
-  { id: 'patient_nurse3', roomId: 'nurse3', gridX: 7, gridY: 3, facing: 'right' as const, color: '#858585ff' },
-  { id: 'patient_hepatologist', roomId: 'hepatologist', gridX: 3.5, gridY: 7.5, facing: 'left' as const, color: '#858585ff' },
-  { id: 'patient_waiting1', roomId: 'waiting', gridX: 4, gridY: 3, facing: 'right' as const, color: '#06b6d4' },
-  { id: 'patient_waiting2', roomId: 'waiting', gridX: 4, gridY: 6, facing: 'left' as const, color: '#f97316' },
-];
-
-const CLINIC_WALL = '#f8fafc';
-const FLOOR_RECEPTION = '#f8fafc';
-const FLOOR_TELE = '#f0f9ff';
-const FLOOR_WAITING = '#f1f5f9';
-const FLOOR_HALLWAY = '#f8fafc';
-const FLOOR_NURSE = '#ecfeff';
-const FLOOR_DOC = '#eff6ff';
-const FLOOR_TECH = '#e2e8f0';
+export const SPAWN_POINT = { x: 30, y: 19 };
+export const WAITING_POINT = { x: 70, y: 25 };
+export const HEPA_POINT = { x: 93, y: 29 };
+export const EXIT_DOOR_POS = { x: 55, y: 10 };
 
 export const ROOMS: ExtendedRoomDef[] = [
   {
-    id: 'entrance',
-    name: 'Reception',
+    id: 'pre_consult',
+    name: 'Pre consultation',
     type: RoomType.ENTRANCE,
-    gridX: 0,
-    gridY: 0,
-    width: 8,
-    height: 8,
-    color: '#ffffff',
-    floorColor: FLOOR_RECEPTION,
-    wallColor: CLINIC_WALL,
-    nextRooms: ['telemedicine'],
-    doorWalls: ['North', 'West'],
-    props: [
-      { type: 'reception_desk', xOffset: 3.5, yOffset: 3 }
-    ]
+    gridX: -15.5, gridY: 4, width: 92, height: 30,
+    color: '#fff', floorColor: COL_PRE_CONSULT, wallColor: '#fff',
   },
   {
-    id: 'telemedicine',
-    name: 'Telemedicine',
+    id: 'tele_pre',
+    name: 'Tele Pre',
     type: RoomType.TELEMEDICINE,
-    gridX: 0,
-    gridY: 8,
-    width: 8,
-    height: 10,
-    color: '#ffffff',
-    floorColor: FLOOR_TELE,
-    wallColor: CLINIC_WALL,
-    nextRooms: ['waiting'],
-    closedWalls: ['South'],
-    doorWalls: ['East'],
-    props: [
-      { type: 'desk', xOffset: 4, yOffset: 3 },
-      { type: 'chair', xOffset: 4.5, yOffset: 3.5 }
-    ]
+    gridX: 16, gridY: -40, width: 23, height: 23,
+    color: '#fff', floorColor: COL_PRE_CONSULT, wallColor: '#fff',
   },
   {
     id: 'waiting',
-    name: 'Waiting Area',
+    name: 'Waiting room',
     type: RoomType.WAITING,
-    gridX: 8,
-    gridY: 4,
-    width: 10,
-    height: 16,
-    color: '#ffffff',
-    floorColor: FLOOR_WAITING,
-    wallColor: CLINIC_WALL,
-    nextRooms: ['hallway'],
-    closedWalls: ['South'],
-    doorWalls: ['East'],
-    props: [
-      { type: 'sofa', xOffset: 3, yOffset: 2 },
-      { type: 'sofa', xOffset: 3, yOffset: 5 },
-      { type: 'sofa', xOffset: 3, yOffset: 8 },
-      { type: 'plant', xOffset: 3, yOffset: 6.5 },
-      { type: 'plant', xOffset: 3, yOffset: 3.5 }
-    ]
-  },
-  {
-    id: 'hallway',
-    name: 'Main Corridor',
-    type: RoomType.HALLWAY,
-    gridX: 18,
-    gridY: 4,
-    width: 24,
-    height: 4,
-    color: '#ffffff',
-    floorColor: FLOOR_HALLWAY,
-    wallColor: CLINIC_WALL,
-    nextRooms: ['nurse1', 'nurse2', 'nurse3'],
-    closedWalls: ['North'],
-    doorWalls: ['West'],
-    props: []
+    gridX: 53, gridY: 20, width: 34, height: 10,
+    color: '#fff', floorColor: COL_WAITING, wallColor: '#fff',
   },
   {
     id: 'nurse1',
-    name: 'Triage 1',
+    name: 'Expert Nurse',
     type: RoomType.NURSE,
-    gridX: 8,
-    gridY: -6,
-    width: 10,
-    height: 10,
-    color: '#ffffff',
-    floorColor: FLOOR_NURSE,
-    wallColor: CLINIC_WALL,
-    nextRooms: ['hallway_to_doc'],
-    closedWalls: ['West'],
-    doorWalls: ['South'],
-    props: [
-      { type: 'desk', xOffset: 3, yOffset: 5 },
-      { type: 'bed', xOffset: 3, yOffset: 2 }
-    ]
+    gridX: 77, gridY: 33.5, width: 12, height: 12,
+    color: '#fff', floorColor: COL_NURSE, wallColor: '#fff',
   },
   {
     id: 'nurse2',
-    name: 'Triage 2',
+    name: 'Expert Nurse',
     type: RoomType.NURSE,
-    gridX: 18,
-    gridY: -6,
-    width: 10,
-    height: 10,
-    color: '#ffffff',
-    floorColor: FLOOR_NURSE,
-    wallColor: CLINIC_WALL,
-    nextRooms: ['hallway_to_doc'],
-    closedWalls: ['West'],
-    doorWalls: ['South'],
-    props: [
-      { type: 'desk', xOffset: 3, yOffset: 5 },
-      { type: 'bed', xOffset: 3, yOffset: 2 }
-    ]
+    gridX: 76, gridY: 22, width: 13, height: 12,
+    color: '#fff', floorColor: COL_NURSE, wallColor: '#fff',
   },
   {
     id: 'nurse3',
-    name: 'Triage 3',
+    name: 'Expert Nurse',
     type: RoomType.NURSE,
-    gridX: 28,
-    gridY: -6,
-    width: 10,
-    height: 10,
-    color: '#ffffff',
-    floorColor: FLOOR_NURSE,
-    wallColor: CLINIC_WALL,
-    nextRooms: ['hallway_to_doc'],
-    closedWalls: ['West', 'East'],
-    doorWalls: ['South'],
-    props: [
-      { type: 'desk', xOffset: 3, yOffset: 5 },
-      { type: 'bed', xOffset: 3, yOffset: 2 }
-    ]
-  },
-  {
-    id: 'hallway_to_doc',
-    name: 'Corridor',
-    type: RoomType.HALLWAY,
-    gridX: 18,
-    gridY: 4,
-    width: 24,
-    height: 4,
-    color: '#ffffff',
-    floorColor: FLOOR_HALLWAY,
-    wallColor: CLINIC_WALL,
-    nextRooms: ['hepatologist'],
-    closedWalls: ['North'],
-    props: []
+    gridX: 74, gridY: 10, width: 13, height: 11,
+    color: '#fff', floorColor: COL_NURSE, wallColor: '#fff',
   },
   {
     id: 'hepatologist',
     name: 'Hepatologist',
     type: RoomType.HEPATOLOGIST,
-    gridX: 18,
-    gridY: 8,
-    width: 12,
-    height: 12,
-    color: '#ffffff',
-    floorColor: FLOOR_DOC,
-    wallColor: CLINIC_WALL,
-    nextRooms: ['monitoring'],
-    closedWalls: ['South', 'West'],
-    props: [
-      { type: 'desk', xOffset: 4, yOffset: 6 },
-      { type: 'bed', xOffset: 3, yOffset: 8 },
-      { type: 'plant', xOffset: 9, yOffset: 7 }
-    ]
+    gridX: 77, gridY: 23, width: 33, height: 12,
+    color: '#fff', floorColor: COL_HEPA, wallColor: '#fff',
+  },
+  {
+    id: 'expert_tele',
+    name: 'Expert Tele Nurse',
+    type: RoomType.NURSE,
+    gridX: 57, gridY: -34, width: 24, height: 24,
+    color: '#fff', floorColor: COL_TELE_NURSE, wallColor: '#fff',
   },
   {
     id: 'monitoring',
-    name: 'AI Monitoring',
+    name: 'Monitoring',
     type: RoomType.MONITORING,
-    gridX: 30,
-    gridY: 8,
-    width: 12,
-    height: 12,
-    color: '#ffffff',
-    floorColor: FLOOR_TECH,
-    wallColor: CLINIC_WALL,
-    nextRooms: [],
-    closedWalls: ['South', 'East'],
-    props: [
-      { type: 'server', xOffset: 9, yOffset: 6 },
-      { type: 'server', xOffset: 9, yOffset: 7 },
-      { type: 'server', xOffset: 9, yOffset: 8 },
-      { type: 'desk', xOffset: 5, yOffset: 6 },
-    ]
+    gridX: 94, gridY: 12, width: 58, height: 40,
+    color: '#fff', floorColor: COL_MONITORING, wallColor: '#fff',
   }
 ];
+
+export const STAFF: Staff[] = [
+  { id: 'tele_doc', type: 'doctor', roomId: 'tele_pre', gridX: 11.5, gridY: 11.5, facing: 'right', name: 'Tele Doc', isSeated: true },
+  { id: 'receptionist', type: 'admin', roomId: 'waiting', gridX: 17, gridY: 5, facing: 'left', name: 'Receptionist', isSeated: true },
+  { id: 'nurse_1', type: 'nurse', roomId: 'nurse1', gridX: 6, gridY: 6, facing: 'left', name: 'Nurse 1', isSeated: true },
+  { id: 'nurse_2', type: 'nurse', roomId: 'nurse2', gridX: 6.5, gridY: 6, facing: 'left', name: 'Nurse 2', isSeated: true },
+  { id: 'nurse_3', type: 'nurse', roomId: 'nurse3', gridX: 6.5, gridY: 5.5, facing: 'left', name: 'Nurse 3', isSeated: true },
+  { id: 'hepa_doc', type: 'doctor', roomId: 'hepatologist', gridX: 16.5, gridY: 6, facing: 'left', name: 'Hepatologist', isSeated: false },
+  { id: 'expert_tele_nurse', type: 'nurse', roomId: 'expert_tele', gridX: 12, gridY: 12, facing: 'left', name: 'Tele Nurse', isSeated: true },
+];
+
+export const STATIC_PATIENTS: Patient[] = [];
+
+export const CLINIC_WIDTH = 80;
+export const CLINIC_HEIGHT = 80;

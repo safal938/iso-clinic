@@ -1,105 +1,232 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ROOMS, TILE_HEIGHT, TILE_WIDTH, WALL_HEIGHT, STAFF, STATIC_PATIENTS } from '../../constants/isoclinic';
-import { Patient, RoomType, RoomDef } from '../../types/isoclinic';
-import { getRoomCenter, gridToScreen, lerp } from '../../utils/isometric';
-import { IsoWall, IsoFloor, IsoCharacter, IsoProp, IsoLabel, IsoSpeechBubble } from './IsoComponents';
+import { 
+  ROOMS, STAFF, 
+  SPAWN_POINT, WAITING_POINT, HEPA_POINT,
+  PATIENT_SPEED, SPAWN_RATE_TICKS, WAITING_TIME_TICKS, TREATMENT_TIME_TICKS
+} from '../../constants/isoclinic';
+import { RoomType, RoomDef, Patient } from '../../types/isoclinic';
+import { gridToScreen, getRandomColor } from '../../utils/isometric';
+import { IsoCharacter, IsoRoundedZone } from './IsoComponents';
+
+// Use public folder URLs for SVGs with namespace tags
+const restSvg = '/rest.svg';
+const doorSvg = '/door.svg';
+
+const GAME_MINUTES_PER_TICK = 0.05;
+const START_HOUR = 9;
+const END_HOUR = 18;
+const TOTAL_GAME_MINUTES = (END_HOUR - START_HOUR) * 60;
+
+const DOOR_ENTRY = { x: 55, y: 14 };
+const SE_GAP = { x: 80, y: 30 };
 
 const IsometricMap: React.FC = () => {
   const navigate = useNavigate();
-  const [viewState, setViewState] = useState({ x: 0, y: 150, zoom: 0.9 });
+  const [viewState, setViewState] = useState({ x: -100, y: -280, zoom: 0.25 });
   const isDragging = useRef(false);
   const lastMousePos = useRef({ x: 0, y: 0 });
-  const animationFrameRef = useRef<number>(0);
-  const [, setTick] = useState(0);
   
-  const [roomConversations, setRoomConversations] = useState<Record<string, 'staff' | 'patient' | 'none'>>({
-    'nurse1': 'staff',
-    'nurse2': 'none',
-    'nurse3': 'patient',
-    'hepatologist': 'none'
+  const [simActive, setSimActive] = useState(false);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [gameTime, setGameTime] = useState(0);
+  const [stats, setStats] = useState({
+    waiting: 0, treated: 0, hepaCases: 0, totalSpawned: 0, time: 0,
+    cumReferred: 0, cumPreConsult: 0, cumTelePre: 0, cumNurse: 0, cumMonitoring: 0
   });
-
-  const waitingPositions = [
-    { x: 4, y: 3 },
-    { x: 4, y: 6 },
-    { x: 4, y: 9 },
-    { x: 6, y: 4 },
-    { x: 6, y: 7 }
-  ];
   
-  const [waitingPatients, setWaitingPatients] = useState([
-    { id: 'patient_waiting1', currentPos: 0, targetPos: 1, progress: 0, color: '#06b6d4', facing: 'right' as const },
-    { id: 'patient_waiting2', currentPos: 1, targetPos: 2, progress: 0, color: '#f97316', facing: 'left' as const }
-  ]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const tickRef = useRef(0);
+  const patientsRef = useRef<Patient[]>([]);
+  const nurseAssignmentIndex = useRef(0);
 
   useEffect(() => {
-    const rooms = ['nurse1', 'nurse2', 'nurse3', 'hepatologist'];
-    
-    const intervals = rooms.map(roomId => {
-      const randomDelay = Math.random() * 2000;
-      
-      const cycleConversation = () => {
-        setRoomConversations(prev => {
-          const current = prev[roomId];
-          if (current === 'staff') return { ...prev, [roomId]: 'patient' };
-          if (current === 'patient') return { ...prev, [roomId]: 'none' };
-          return { ...prev, [roomId]: 'staff' };
-        });
+    let frameId: number;
+
+    const spawnPatient = () => {
+      const id = `p-${Date.now()}-${Math.random()}`;
+      const rand = Math.random();
+      let originType = 'pre';
+      if (rand < 0.2) originType = 'referred';
+      else if (rand < 0.6) originType = 'pre';
+      else originType = 'tele';
+
+      const newPatient: Patient = {
+        id,
+        type: 'patient',
+        gridX: SPAWN_POINT.x,
+        gridY: SPAWN_POINT.y,
+        path: [DOOR_ENTRY, WAITING_POINT],
+        state: 'entering',
+        waitTimer: 0,
+        color: getRandomColor(),
+        facing: 'right'
       };
+      patientsRef.current.push(newPatient);
       
-      return setTimeout(() => {
-        const interval = setInterval(cycleConversation, 2000 + Math.random() * 1500);
-        return interval;
-      }, randomDelay);
-    });
-    
-    return () => {
-      intervals.forEach(timeout => clearTimeout(timeout));
+      setStats(s => ({ 
+        ...s, 
+        totalSpawned: s.totalSpawned + 1,
+        cumReferred: originType === 'referred' ? s.cumReferred + 1 : s.cumReferred,
+        cumPreConsult: originType === 'pre' ? s.cumPreConsult + 1 : s.cumPreConsult,
+        cumTelePre: originType === 'tele' ? s.cumTelePre + 1 : s.cumTelePre,
+      }));
     };
-  }, []);
 
-  const updateSimulation = useCallback((timestamp: number) => {
-    setTick(t => t + 1);
-    
-    setWaitingPatients(prev => prev.map(patient => {
-      if (patient.progress < 1) {
-        return { ...patient, progress: patient.progress + 0.003 };
-      } else {
-        if (Math.random() < 0.01) {
-          const availablePositions = [0, 1, 2, 3, 4].filter(p => p !== patient.targetPos);
-          const newTarget = availablePositions[Math.floor(Math.random() * availablePositions.length)];
-          return {
-            ...patient,
-            currentPos: patient.targetPos,
-            targetPos: newTarget,
-            progress: 0,
-            facing: newTarget > patient.targetPos ? 'right' : 'left'
-          };
+    const updatePatient = (p: Patient): boolean => {
+      if (p.path.length > 0) {
+        const target = p.path[0];
+        const dx = target.x - p.gridX;
+        const dy = target.y - p.gridY;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        
+        if (dist > PATIENT_SPEED) {
+          p.gridX += (dx / dist) * PATIENT_SPEED;
+          p.gridY += (dy / dist) * PATIENT_SPEED;
+          p.facing = dx > 0 ? 'right' : 'left';
+        } else {
+          p.gridX = target.x;
+          p.gridY = target.y;
+          p.path.shift();
         }
-        return patient;
+      } else {
+        switch (p.state) {
+          case 'entering':
+            p.state = 'waiting';
+            p.waitTimer = WAITING_TIME_TICKS;
+            break;
+          case 'to_nurse':
+            p.state = 'at_nurse';
+            p.waitTimer = TREATMENT_TIME_TICKS;
+            setStats(s => ({ ...s, cumNurse: s.cumNurse + 1 }));
+            break;
+          case 'to_doc':
+            p.state = 'at_doc';
+            p.waitTimer = TREATMENT_TIME_TICKS;
+            break;
+          case 'to_monitoring':
+            p.state = 'at_monitoring';
+            p.waitTimer = TREATMENT_TIME_TICKS;
+            setStats(s => ({ ...s, cumMonitoring: s.cumMonitoring + 1 }));
+            break;
+          case 'exiting':
+            return true;
+        }
       }
-    }));
-    
-    animationFrameRef.current = requestAnimationFrame(updateSimulation);
-  }, []);
 
-  useEffect(() => {
-    animationFrameRef.current = requestAnimationFrame(updateSimulation);
-    return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      if (p.waitTimer > 0) {
+        p.waitTimer--;
+        if (p.waitTimer <= 0) {
+          if (p.state === 'waiting') {
+            const nurses = ROOMS.filter(r => r.type === RoomType.NURSE && r.id.startsWith('nurse'));
+            nurses.sort((a, b) => a.id.localeCompare(b.id));
+            const nurse = nurses[nurseAssignmentIndex.current % nurses.length];
+            nurseAssignmentIndex.current++;
+            p.state = 'to_nurse';
+            p.assignedStaffId = nurse.id;
+            p.path = [{ x: nurse.gridX + 2 + Math.random() * 2, y: nurse.gridY + 2 + Math.random() * 2 }];
+          } else if (p.state === 'at_nurse') {
+            const isHepaCase = Math.random() < (1/9);
+            if (isHepaCase) {
+              p.state = 'to_doc';
+              p.path = [{ x: HEPA_POINT.x + Math.random(), y: HEPA_POINT.y + Math.random() }];
+              setStats(s => ({ ...s, hepaCases: s.hepaCases + 1 }));
+            } else {
+              p.state = 'to_monitoring';
+              const monRoom = ROOMS.find(r => r.id === 'monitoring');
+              const monitoringCount = patientsRef.current.filter(pt => pt.state === 'at_monitoring' || pt.state === 'to_monitoring').length;
+              const cols = 12;
+              const row = Math.floor(monitoringCount / cols);
+              const col = monitoringCount % cols;
+              const monTarget = monRoom 
+                ? { x: monRoom.gridX + 15 + col * 2, y: monRoom.gridY + 12 + row * 2 }
+                : { x: 109 + col * 2, y: 24 + row * 2 };
+              p.path = [SE_GAP, monTarget];
+              setStats(s => ({ ...s, treated: s.treated + 1 }));
+            }
+          } else if (p.state === 'at_doc') {
+            p.state = 'to_monitoring';
+            const monRoom = ROOMS.find(r => r.id === 'monitoring');
+            const monitoringCount = patientsRef.current.filter(pt => pt.state === 'at_monitoring' || pt.state === 'to_monitoring').length;
+            const cols = 12;
+            const row = Math.floor(monitoringCount / cols);
+            const col = monitoringCount % cols;
+            const monTarget = monRoom 
+              ? { x: monRoom.gridX + 15 + col * 2, y: monRoom.gridY + 12 + row * 2 }
+              : { x: 109 + col * 2, y: 24 + row * 2 };
+            p.path = [SE_GAP, monTarget];
+          }
+        }
+      }
+      return true;
     };
-  }, [updateSimulation]);
+
+    const loop = () => {
+      if (simActive) {
+        tickRef.current++;
+        
+        setGameTime(prev => {
+          const next = prev + GAME_MINUTES_PER_TICK;
+          if (next >= TOTAL_GAME_MINUTES) {
+            setSimActive(false);
+            const monitoringPatients = patientsRef.current.filter(p => p.state === 'at_monitoring');
+            patientsRef.current = monitoringPatients;
+            setPatients([...monitoringPatients]);
+            return TOTAL_GAME_MINUTES;
+          }
+          return next;
+        });
+
+        setStats(s => ({ ...s, time: tickRef.current }));
+
+        if (tickRef.current % SPAWN_RATE_TICKS === 0 && gameTime < TOTAL_GAME_MINUTES) {
+          spawnPatient();
+        }
+
+        patientsRef.current = patientsRef.current.filter(updatePatient);
+        setPatients([...patientsRef.current]);
+        
+        const waitingCount = patientsRef.current.filter(p => p.state === 'waiting').length;
+        setStats(s => ({ ...s, waiting: waitingCount }));
+      }
+      frameId = requestAnimationFrame(loop);
+    };
+
+    frameId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(frameId);
+  }, [simActive, gameTime]);
+
+  const handleStartSim = () => {
+    if (gameTime >= TOTAL_GAME_MINUTES) {
+      setGameTime(0);
+      setStats({ waiting: 0, treated: 0, hepaCases: 0, totalSpawned: 0, time: 0, cumReferred: 0, cumPreConsult: 0, cumTelePre: 0, cumNurse: 0, cumMonitoring: 0 });
+      patientsRef.current = [];
+      setPatients([]);
+      tickRef.current = 0;
+    }
+    setSimActive(true);
+  };
+  
+  const handleStopSim = () => setSimActive(false);
 
   const handleWheel = (e: React.WheelEvent) => {
     const zoomSensitivity = 0.001;
-    const newZoom = Math.max(0.4, Math.min(2.0, viewState.zoom - e.deltaY * zoomSensitivity));
+    const newZoom = Math.max(0.1, Math.min(2.0, viewState.zoom - e.deltaY * zoomSensitivity));
     setViewState(prev => ({ ...prev, zoom: newZoom }));
   };
 
+  const dragStartPos = useRef({ x: 0, y: 0 });
+
   const handleMouseDown = (e: React.MouseEvent) => {
+    // Don't start dragging if clicking on a clickable element
+    const target = e.target as HTMLElement;
+    if (target.closest('.clickable-room')) {
+      return;
+    }
     isDragging.current = true;
     lastMousePos.current = { x: e.clientX, y: e.clientY };
+    dragStartPos.current = { x: e.clientX, y: e.clientY };
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -110,260 +237,222 @@ const IsometricMap: React.FC = () => {
     lastMousePos.current = { x: e.clientX, y: e.clientY };
   };
 
-  const handleMouseUp = () => {
-    isDragging.current = false;
-  };
+  const handleMouseUp = () => { isDragging.current = false; };
 
   const handleRoomClick = (room: RoomDef) => {
+    console.log('Room clicked:', room.id, room.type, room.name);
     if (room.type === RoomType.HEPATOLOGIST) {
+      console.log('Navigating to /board');
       navigate('/board');
+    } else if (room.type === RoomType.NURSE && room.id.startsWith('nurse')) {
+      // Only navigate for expert nurse rooms (nurse1, nurse2, nurse3), not tele nurse
+      console.log('Navigating to /nurse-sim with room:', room.id);
+      navigate('/nurse-sim', { state: { triageRoom: room.id } });
     }
   };
 
-  const checkOverlap = (min1: number, max1: number, min2: number, max2: number) => {
-    return Math.max(min1, min2) < Math.min(max1, max2);
+  const formatTime = (minutes: number) => {
+    const h = Math.floor(START_HOUR + minutes / 60);
+    const m = Math.floor(minutes % 60);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h > 12 ? h - 12 : h;
+    return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+  };
+
+  const progressPercent = (gameTime / TOTAL_GAME_MINUTES) * 100;
+  const treatedCount = stats.treated + stats.hepaCases;
+  const throughputPerHour = gameTime > 0 ? (treatedCount / (gameTime / 60)) : 0;
+  const STANDARD_THROUGHPUT = 2.5;
+  const productivityGain = throughputPerHour > 0 ? (throughputPerHour / STANDARD_THROUGHPUT).toFixed(1) : "0.0";
+  const totalSpawned = stats.totalSpawned;
+  const arrivalRate = gameTime > 0 ? (totalSpawned / (gameTime / 60)).toFixed(1) : "0.0";
+
+  const listCounts = {
+    referred: stats.cumReferred,
+    preConsult: stats.cumPreConsult,
+    telePre: stats.cumTelePre,
+    waiting: stats.waiting,
+    nurse: stats.cumNurse,
+    hepato: stats.hepaCases,
+    monitoring: stats.cumMonitoring
+  };
+
+  const DOOR_ZONE = { minX: 48, maxX: 62, minY: 10, maxY: 18 };
+  const isInDoorZone = (gridX: number, gridY: number) => {
+    return gridX >= DOOR_ZONE.minX && gridX <= DOOR_ZONE.maxX && gridY >= DOOR_ZONE.minY && gridY <= DOOR_ZONE.maxY;
   };
 
   const renderList = useMemo(() => {
-    const floorItems: React.ReactNode[] = [];
-    const wallItems: { depth: number; node: React.ReactNode; id: string }[] = [];
-    const objectItems: { y: number; node: React.ReactNode; id: string }[] = [];
-    const labelItems: React.ReactNode[] = [];
+    const clickableAreas: React.ReactNode[] = [];
+    const charactersBehindDoor: { y: number; node: React.ReactNode }[] = [];
+    const charactersInFront: { y: number; node: React.ReactNode }[] = [];
 
     ROOMS.forEach((room) => {
-      const p1 = gridToScreen(room.gridX, room.gridY);
-      const p2 = gridToScreen(room.gridX + room.width, room.gridY);
-      const p3 = gridToScreen(room.gridX + room.width, room.gridY + room.height);
-      const p4 = gridToScreen(room.gridX, room.gridY + room.height);
+      const centerX = room.gridX + room.width / 2;
+      const centerY = room.gridY + room.height / 2;
+      const center = gridToScreen(centerX, centerY);
+      const screenWidth = room.width * 32;
+      const screenHeight = room.height * 32;
 
-      floorItems.push(
+      const isClickableRoom = room.type === RoomType.HEPATOLOGIST || (room.type === RoomType.NURSE && room.id.startsWith('nurse'));
+      
+      clickableAreas.push(
         <g 
-          key={`floor-${room.id}`} 
-          className="hover:opacity-90 cursor-pointer transition-all"
-          onClick={() => handleRoomClick(room)}
+          key={`zone-${room.id}`} 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRoomClick(room);
+          }} 
+          className={isClickableRoom ? "cursor-pointer clickable-room" : ""} 
+          style={{ pointerEvents: 'all' }}
         >
-          <IsoFloor points={[p1, p2, p3, p4]} color={room.floorColor} />
+          <IsoRoundedZone 
+            x={center.x} 
+            y={center.y} 
+            width={screenWidth} 
+            height={screenHeight} 
+            color={room.floorColor || '#888'} 
+            opacity={isClickableRoom ? 0.15 : 0.01} 
+            borderRadius={25} 
+          />
         </g>
       );
-
-      if (room.id !== 'hallway_to_doc' && room.id !== 'hallway') {
-        const labelPos = gridToScreen(room.gridX + 1.5, room.gridY + 1.5);
-        labelItems.push(
-          <IsoLabel key={`lbl-${room.id}`} x={labelPos.x} y={labelPos.y} text={room.name} />
-        );
-      }
-
-      const neighborNorth = ROOMS.find(
-        (r) =>
-          Math.abs(r.gridY + r.height - room.gridY) < 0.1 &&
-          checkOverlap(room.gridX, room.gridX + room.width, r.gridX, r.gridX + r.width)
-      );
-      const isNorthClosed = room.closedWalls?.includes('North');
-      const hasNorthDoor = !!neighborNorth && !isNorthClosed;
-
-      const neighborWest = ROOMS.find(
-        (r) =>
-          Math.abs(r.gridX + r.width - room.gridX) < 0.1 &&
-          checkOverlap(room.gridY, room.gridY + room.height, r.gridY, r.gridY + r.height)
-      );
-      const isWestClosed = room.closedWalls?.includes('West');
-      const hasWestDoor = (!!neighborWest && !isWestClosed) || room.doorWalls?.includes('West');
-
-      const skipWestWall = room.openWalls?.includes('West');
-      if (!skipWestWall) {
-        wallItems.push({
-          depth: room.gridX + room.gridY,
-          id: `wall-w-${room.id}`,
-          node: (
-            <IsoWall
-              key={`wall-w-${room.id}`}
-              p1={p1}
-              p2={p4}
-              height={WALL_HEIGHT}
-              color={room.wallColor}
-              hasDoor={hasWestDoor}
-            />
-          ),
-        });
-      }
-
-      const skipNorthWall = isNorthClosed && !!neighborNorth;
-      if (!skipNorthWall) {
-        wallItems.push({
-          depth: room.gridX + room.gridY,
-          id: `wall-n-${room.id}`,
-          node: (
-            <IsoWall
-              key={`wall-n-${room.id}`}
-              p1={p1}
-              p2={p2}
-              height={WALL_HEIGHT}
-              color={room.wallColor}
-              hasDoor={hasNorthDoor}
-            />
-          ),
-        });
-      }
-
-      const hasSouthDoor = room.doorWalls?.includes('South');
-      if (room.closedWalls?.includes('South') || hasSouthDoor) {
-        wallItems.push({
-          depth: room.gridX + room.width + room.gridY + room.height,
-          id: `wall-s-${room.id}`,
-          node: (
-            <IsoWall
-              key={`wall-s-${room.id}`}
-              p1={p4}
-              p2={p3}
-              height={WALL_HEIGHT}
-              color={room.wallColor}
-              hasDoor={hasSouthDoor}
-            />
-          ),
-        });
-      }
-
-      if (room.closedWalls?.includes('East')) {
-        wallItems.push({
-          depth: room.gridX + room.width + room.gridY + room.height,
-          id: `wall-e-${room.id}`,
-          node: (
-            <IsoWall
-              key={`wall-e-${room.id}`}
-              p1={p2}
-              p2={p3}
-              height={WALL_HEIGHT}
-              color={room.wallColor}
-              hasDoor={false}
-            />
-          ),
-        });
-      }
-
-      room.props.forEach((prop, idx) => {
-        const center = gridToScreen(room.gridX + prop.xOffset, room.gridY + prop.yOffset);
-        objectItems.push({
-          y: center.y,
-          id: `prop-${room.id}-${idx}`,
-          node: (
-            <IsoProp key={`prop-${room.id}-${idx}`} type={prop.type} x={center.x} y={center.y} />
-          ),
-        });
-      });
     });
 
     STAFF.forEach(staff => {
       const room = ROOMS.find(r => r.id === staff.roomId);
       if (room) {
-        const center = gridToScreen(room.gridX + staff.gridX, room.gridY + staff.gridY);
-        objectItems.push({
-          y: center.y,
-          id: `staff-${staff.id}`,
-          node: <IsoCharacter key={`staff-${staff.id}`} x={center.x} y={center.y} color={staff.color || "#fff"} role={staff.type} facing={staff.facing} isSeated={staff.isSeated} />
-        });
+        const gridX = room.gridX + staff.gridX;
+        const gridY = room.gridY + staff.gridY;
+        const center = gridToScreen(gridX, gridY);
+        const charNode = { y: center.y, node: <IsoCharacter key={`staff-${staff.id}`} x={center.x} y={center.y} role={staff.type} facing={staff.facing} isSeated={staff.isSeated} /> };
+        if (isInDoorZone(gridX, gridY)) charactersBehindDoor.push(charNode);
+        else charactersInFront.push(charNode);
       }
     });
 
-    STATIC_PATIENTS.filter(p => p.roomId !== 'waiting').forEach(staticPatient => {
-      const room = ROOMS.find(r => r.id === staticPatient.roomId);
-      if (room) {
-        const center = gridToScreen(room.gridX + staticPatient.gridX, room.gridY + staticPatient.gridY);
-        
-        objectItems.push({
-          y: center.y,
-          id: `static-${staticPatient.id}`,
-          node: <IsoCharacter key={`static-${staticPatient.id}`} x={center.x} y={center.y} color={staticPatient.color} role="patient" facing={staticPatient.facing} isWalking={false} />
-        });
-        
-        const roomPhase = roomConversations[staticPatient.roomId];
-        if ((staticPatient.roomId.includes('nurse') || staticPatient.roomId === 'hepatologist') && roomPhase === 'patient') {
-          objectItems.push({
-            y: center.y - 1,
-            id: `bubble-${staticPatient.id}`,
-            node: <IsoSpeechBubble key={`bubble-${staticPatient.id}`} x={center.x} y={center.y} type="dots" />
-          });
-        }
-      }
+    patients.forEach(p => {
+      const pos = gridToScreen(p.gridX, p.gridY);
+      const charNode = { y: pos.y, node: <IsoCharacter key={p.id} x={pos.x} y={pos.y} role="patient" facing={p.facing} /> };
+      if (isInDoorZone(p.gridX, p.gridY)) charactersBehindDoor.push(charNode);
+      else charactersInFront.push(charNode);
     });
 
-    const waitingRoom = ROOMS.find(r => r.id === 'waiting');
-    if (waitingRoom) {
-      waitingPatients.forEach(patient => {
-        const currentPosData = waitingPositions[patient.currentPos];
-        const targetPosData = waitingPositions[patient.targetPos];
-        
-        const startPos = gridToScreen(waitingRoom.gridX + currentPosData.x, waitingRoom.gridY + currentPosData.y);
-        const endPos = gridToScreen(waitingRoom.gridX + targetPosData.x, waitingRoom.gridY + targetPosData.y);
-        
-        const currentX = lerp(startPos, endPos, patient.progress).x;
-        const currentY = lerp(startPos, endPos, patient.progress).y;
-        
-        objectItems.push({
-          y: currentY,
-          id: `waiting-${patient.id}`,
-          node: <IsoCharacter 
-            key={`waiting-${patient.id}`} 
-            x={currentX} 
-            y={currentY} 
-            color={patient.color} 
-            role="patient" 
-            facing={patient.facing} 
-            isWalking={patient.progress < 1} 
-          />
-        });
-      });
-    }
+    charactersBehindDoor.sort((a, b) => a.y - b.y);
+    charactersInFront.sort((a, b) => a.y - b.y);
 
-    STAFF.forEach(staff => {
-      const room = ROOMS.find(r => r.id === staff.roomId);
-      const roomPhase = roomConversations[staff.roomId];
-      if (room && roomPhase === 'staff') {
-        const center = gridToScreen(room.gridX + staff.gridX, room.gridY + staff.gridY);
-        
-        if (staff.roomId.includes('nurse') || staff.roomId === 'hepatologist') {
-          objectItems.push({
-            y: center.y - 1,
-            id: `bubble-staff-${staff.id}`,
-            node: <IsoSpeechBubble key={`bubble-staff-${staff.id}`} x={center.x + 15} y={center.y} type="dots" />
-          });
-        }
-      }
-    });
-
-    objectItems.sort((a, b) => a.y - b.y);
-    wallItems.sort((a, b) => a.depth - b.depth);
-
-    return {
-      floorItems,
-      sortedWalls: wallItems.map((i) => i.node),
-      sortedObjects: objectItems.map((i) => i.node),
-      labelItems,
-    };
-  }, [roomConversations, waitingPatients]);
+    return { clickableAreas, charactersBehindDoor, charactersInFront };
+  }, [patients]);
 
   return (
-    <div 
-      className="w-full h-screen bg-slate-50 overflow-hidden relative select-none"
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      onWheel={handleWheel}
-      style={{ cursor: isDragging.current ? 'grabbing' : 'grab' }}
-    >
-      <div className="absolute top-8 left-8 z-20 pointer-events-none">
-        <h1 className="text-3xl font-light text-slate-700 tracking-tight">Medforce<span className="font-bold text-sky-500">AI</span></h1>
-        <p className="text-slate-400 font-light text-sm tracking-widest uppercase mt-1">AI Powered Clinic</p>
+    <div className="w-full h-screen bg-slate-50 overflow-hidden relative select-none"
+      onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onWheel={handleWheel}
+      style={{ cursor: isDragging.current ? 'grabbing' : 'grab' }}>
+      
+      {/* Title and Time Progress */}
+      <div className={`absolute top-8 z-20 transition-all duration-300 flex items-center gap-8 ${isSidebarOpen ? 'left-80 ml-8' : 'left-8'}`}>
+        <div>
+          <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight drop-shadow-sm">Medforce<span className="font-light text-slate-400">AI</span></h1>
+          <p className="text-slate-500 font-semibold text-sm tracking-widest uppercase mt-1">Hepatology Center</p>
+        </div>
+        <div className="flex flex-col gap-1.5 min-w-[220px]">
+          <div className="flex justify-between items-center">
+            <span className="text-[10px] text-slate-400 uppercase tracking-wide">Clinic Hours</span>
+            <span className="text-sm font-mono text-slate-600">{formatTime(gameTime)}</span>
+          </div>
+          <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+            <div className="h-full bg-indigo-500 rounded-full transition-all duration-300 ease-linear" style={{ width: `${progressPercent}%` }} />
+          </div>
+          <div className="flex justify-between text-[9px] text-slate-400">
+            <span>09:00</span>
+            <span>18:00</span>
+          </div>
+        </div>
       </div>
 
-      <svg width="100%" height="100%" className="block" style={{ shapeRendering: 'geometricPrecision' }}>
-        <g transform={`translate(${window.innerWidth / 2 + viewState.x}, ${window.innerHeight / 4 + viewState.y}) scale(${viewState.zoom})`}>
-          {renderList.floorItems}
-          {renderList.sortedWalls}
-          {renderList.sortedObjects}
-          {renderList.labelItems}
+      {/* Sidebar */}
+      <div className={`absolute top-0 left-0 z-30 h-full bg-white border-r border-slate-200 shadow-2xl transition-all duration-300 ease-in-out transform flex flex-col ${isSidebarOpen ? 'translate-x-0 w-80' : '-translate-x-full w-80'}`}>
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="absolute top-1/2 -right-8 w-8 h-16 bg-white border border-l-0 border-slate-200 rounded-r-xl flex items-center justify-center shadow-md hover:bg-slate-50 focus:outline-none z-50 transform -translate-y-1/2">
+          <svg className={`w-4 h-4 text-slate-600 transition-transform duration-300 ${isSidebarOpen ? 'rotate-180' : 'rotate-0'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <div className="p-6 flex flex-col h-full overflow-y-auto">
+          <div className="space-y-8 flex-1 mt-4">
+            <div className="space-y-4">
+              <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">Simulation Metrics</h2>
+              {[
+                { label: 'Overall productivity gain', value: `${productivityGain}X`, color: 'text-emerald-500' },
+                { label: 'Total patient treated', value: treatedCount, color: 'text-slate-900' },
+                { label: 'Doctor patient ratio', value: `1 : ${totalSpawned}`, color: 'text-slate-900' },
+                { label: 'Expert Nurse patient ratio', value: `3 : ${totalSpawned}`, color: 'text-slate-900' },
+                { label: 'Arrival Rate (/h)', value: arrivalRate, color: 'text-slate-900' },
+              ].map((item, idx) => (
+                <div key={idx} className="flex justify-between items-center border-b border-slate-100 pb-2">
+                  <span className="text-slate-600 font-medium text-sm">{item.label}</span>
+                  <span className={`font-bold text-lg ${item.color}`}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <h3 className="text-xs font-bold text-slate-500 uppercase mb-4">Real-time Patient Status</h3>
+              <div className="space-y-0.5">
+                {[
+                  { label: 'Referred', count: listCounts.referred, color: 'text-slate-800' },
+                  { label: 'Pre Consultation', count: listCounts.preConsult, color: 'text-slate-600' },
+                  { label: 'Tele-pre Consultation', count: listCounts.telePre, color: 'text-slate-600' },
+                  { label: 'Waiting Room', count: listCounts.waiting, color: 'text-amber-600' },
+                  { label: 'Consultation by expert nurse', count: listCounts.nurse, color: 'text-blue-600' },
+                  { label: 'Consultation by Hepatologist', count: listCounts.hepato, color: 'text-indigo-600' },
+                  { label: 'Monitoring', count: listCounts.monitoring, color: 'text-rose-600' },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center py-2 px-3 bg-white hover:bg-slate-50 rounded border border-slate-100 transition-colors">
+                    <span className="text-sm font-medium text-slate-600">{item.label}</span>
+                    <span className={`font-bold ${item.color}`}>{item.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-auto pt-6 border-t border-slate-100">
+            <button onClick={simActive ? handleStopSim : handleStartSim}
+              className={`w-full py-3 rounded-lg font-bold text-sm transition-all transform active:scale-95 duration-200 border shadow-sm flex items-center justify-center gap-2 ${simActive ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100' : 'bg-slate-900 text-white border-transparent hover:bg-slate-800'}`}>
+              {simActive ? (
+                <><span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>Pause Simulation</>
+              ) : (
+                <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Start Simulation</>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Canvas */}
+      <svg width="100%" height="100%" className="block">
+        <g transform={`translate(${window.innerWidth / 2 + viewState.x - 100}, ${window.innerHeight / 2 + viewState.y}) scale(${viewState.zoom})`}>
+          <image href={restSvg} x={-825} y={-300} width={4626} height={3324} preserveAspectRatio="xMidYMid meet" />
+          {renderList.charactersBehindDoor.map(o => o.node)}
+          <image href={doorSvg} x={165} y={600} width={1557} height={1869} preserveAspectRatio="xMidYMid meet" />
+          {renderList.charactersInFront.map(o => o.node)}
+          {renderList.clickableAreas}
         </g>
       </svg>
+
+      {/* Zoom Controls */}
+      <div className="absolute bottom-8 right-8 z-20 flex flex-col gap-2">
+        <button onClick={() => setViewState(prev => ({ ...prev, zoom: Math.min(2.0, prev.zoom + 0.1) }))}
+          className="w-10 h-10 bg-white border border-slate-200 rounded-lg shadow-md flex items-center justify-center hover:bg-slate-50 active:scale-95 transition-all">
+          <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12M6 12h12" /></svg>
+        </button>
+        <button onClick={() => setViewState(prev => ({ ...prev, zoom: Math.max(0.1, prev.zoom - 0.1) }))}
+          className="w-10 h-10 bg-white border border-slate-200 rounded-lg shadow-md flex items-center justify-center hover:bg-slate-50 active:scale-95 transition-all">
+          <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12h12" /></svg>
+        </button>
+      </div>
     </div>
   );
 };
