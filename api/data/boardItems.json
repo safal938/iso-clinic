@@ -1,279 +1,292 @@
 [
+  
   {
-    "id": "dashboard-item-1759853783245-patient-context",
+    "id": "referral-doctor-info",
     "type": "component",
-    "x": -4029,
-    "y": 3700,
-    "width": 1600,
-    "height": "auto",
-    "componentType": "PatientContext",
+    "x": -1900,
+    "y": -11100,
+    "width": 350,
+    "height": 200,
+    "componentType": "RawClinicalNote",
     "color": "#ffffff",
-    "description": "'Sarah Miller (MRN: SM43850603) is a 43-year-old female patient (DOB: 1981-06-03) currently classified as high risk. Her primary diagnosis is Severe Drug-Induced Liver Injury (DILI) related to Methotrexate use.\nClinical History and Comorbidities:\nSarah has a complex medical history including Type 2 Diabetes Mellitus, Essential Hypertension, Rheumatoid Arthritis, and Metabolic Dysfunction-associated Steatotic Liver Disease (MASLD/MASH). She recently experienced an acute jaundice episode in August 2024, which is now considered resolved/improving.\nMedication Timeline and Adverse Events:\nChronic Medications: She has been on Metformin (since 2019) and Ramipril (since 2020).\nThe Adverse Event: Sarah began Methotrexate therapy for Rheumatoid Arthritis on 2024-06-03. Despite a dose reduction on 2024-07-15, the medication was discontinued on 2024-08-12 due to severe liver injury.\nTreatment: She underwent a 3-bag N-Acetylcysteine (NAC) IV protocol in August 2024 and was started on Ursodeoxycholic Acid (UDCA) on 2024-08-15.\nContraindications:\nSarah has a documented allergy/permanent contraindication to Methotrexate due to the severity of the resulting DILI.'",
+    "description": "Referring Doctor Information",
     "content": {
-      "title": "Patient Context",
-      "component": "PatientContext",
+      "title": "Referred By",
+      "component": "RawClinicalNote",
       "props": {
-        "patientData": {
-          "patient": {
-            "name": "Sarah Miller",
-            "date_of_birth": "1981-06-03",
-            "age": 43,
-            "sex": "Female",
-            "age_at_first_encounter": 43,
-            "identifiers": {
-              "mrn": "SM43850603"
-            }
-          },
-          "riskLevel": "high",
-          "primaryDiagnosis": "Severe Drug-Induced Liver Injury (Methotrexate-related)",
-          "problem_list": [
-            {
-              "name": "Type 2 Diabetes Mellitus",
-              "status": "active"
-            },
-            {
-              "name": "Essential Hypertension",
-              "status": "active"
-            },
-            {
-              "name": "Rheumatoid Arthritis",
-              "status": "active"
-            },
-            {
-              "name": "Metabolic Dysfunction-associated Steatotic Liver Disease (MASLD/MASH)",
-              "status": "active"
-            },
-            {
-              "name": "Severe Methotrexate-induced Drug-Induced Liver Injury (DILI)",
-              "status": "active"
-            },
-            {
-              "name": "Acute jaundice episode (2024-08)",
-              "status": "resolved/improving"
-            }
-          ],
-          "medication_timeline": [
-            {
-              "name": "Metformin",
-              "dose": "1000 mg",
-              "route": "PO",
-              "frequency": "BD",
-              "start": "2019-01-01"
-            },
-            {
-              "name": "Ramipril",
-              "dose": "5 mg",
-              "route": "PO",
-              "frequency": "daily",
-              "start": "2020-01-01"
-            },
-            {
-              "name": "Ibuprofen",
-              "dose": "variable",
-              "route": "PO",
-              "frequency": "PRN",
-              "start": "2022-01-01"
-            },
-            {
-              "name": "Simethicone",
-              "dose": "standard",
-              "route": "PO",
-              "frequency": "PRN",
-              "start": "2024-03-05"
-            },
-            {
-              "name": "Methotrexate",
-              "dose": "7.5 mg",
-              "route": "PO",
-              "frequency": "weekly",
-              "start": "2024-06-03",
-              "end": "2024-08-12"
-            },
-            {
-              "name": "Folic Acid",
-              "dose": "5 mg",
-              "route": "PO",
-              "frequency": "weekly",
-              "start": "2024-06-03"
-            },
-            {
-              "name": "Methotrexate (dose reduced)",
-              "dose": "5 mg",
-              "route": "PO",
-              "frequency": "weekly",
-              "start": "2024-07-15",
-              "end": "2024-08-12"
-            },
-            {
-              "name": "N-Acetylcysteine (NAC IV)",
-              "dose": "3-bag protocol",
-              "route": "IV",
-              "frequency": "one-time protocol",
-              "start": "2024-08-12",
-              "end": "2024-08-17"
-            },
-            {
-              "name": "Ursodeoxycholic Acid (UDCA)",
-              "dose": "500 mg",
-              "route": "PO",
-              "frequency": "BID",
-              "start": "2024-08-15"
-            }
-          ],
-          "allergies": [
-            "Methotrexate (severe DILI – permanent contraindication)"
-          ]
-        }
+        "encounterNumber": 1,
+        "date": "2025-11-20",
+        "visitType": "Referred By",
+        "provider": "Dr. Richard Jenkins, MD",
+        "specialty": "GP",
+        "rawText": "NPI: 1435920051\n\nMidtown Primary Care Associates\n3700 Woodward Ave, Suite 200\nDetroit, MI 48201",
+        "dataSource": "Referral",
+        "highlights": []
       }
     },
-    "createdAt": "2025-10-14T16:16:23.245Z",
-    "updatedAt": "2025-11-21T08:36:27.123Z"
+    "createdAt": "2025-12-10T12:00:00.000Z",
+    "updatedAt": "2025-12-10T12:00:00.000Z"
   },
   {
-    "id": "dashboard-item-1759906219477-adverse-event-analytics",
+    "id": "referral-letter-image",
     "type": "component",
-    "x": -4031,
-    "y": 4444,
-    "width": 1600,
-    "height": "auto",
-    "componentType": "AdverseEventAnalytics",
+    "x": -1500,
+    "y": -11100,
+    "width": 600,
+    "height": 800,
+    "componentType": "RadiologyImage",
     "color": "#ffffff",
-    "description": "",
+    "description": "Referral Letter from Dr. Richard Jenkins",
     "content": {
-      "title": "Adverse Event Analytics",
-      "component": "AdverseEventAnalytics",
+      "title": "Referral Letter",
+      "component": "RadiologyImage",
       "props": {
-        "patientData": {
-          "adverseEvents": [
-            {
-              "event": "Drug-Induced Liver Injury (DILI)",
-              "severity": "Severe",
-              "description": "Severe hepatocellular DILI caused by Methotrexate, presenting with ALT 490 U/L (12× ULN), AST 350 U/L, and progressive jaundice."
-            },
-            {
-              "event": "Cholestatic Jaundice",
-              "severity": "Severe",
-              "description": "Bilirubin elevation from 110 to 190 μmol/L with marked jaundice; consistent with cholestatic component of acute DILI."
-            },
-            {
-              "event": "Methotrexate Toxicity",
-              "severity": "Severe",
-              "description": "Progressive hepatotoxicity after MTX initiation; ALT 185 U/L within 6 weeks; continued exposure led to severe acute DILI requiring hospitalization."
-            },
-            {
-              "event": "Acute-on-Chronic Liver Injury",
-              "severity": "Moderate–Severe",
-              "description": "Acute hepatocellular necrosis superimposed on underlying MASLD/MASH, demonstrated by coarse echogenic liver on ultrasound."
-            }
-          ],
-          "rucam_ctcae_analysis": {
-            "rucam": {
-              "title": "RUCAM Scoring (Hepatocellular Pattern)",
-              "columns": [
-                "#",
-                "Parameter",
-                "Key findings from this case",
-                "Score",
-                "Explanation"
-              ],
-              "rows": [
-                [
-                  "1",
-                  "Time to onset (from drug start to injury)",
-                  "MTX started 2024-06-03 → ALT rise noted by 2024-07-15 (~6 weeks)",
-                  "+2",
-                  "Typical 5–90 day window for idiosyncratic hepatocellular DILI."
-                ],
-                [
-                  "2",
-                  "Course after stopping the drug",
-                  "ALT decreased from 490 → 420 U/L by 2024-08-15 post-MTX cessation",
-                  "+3",
-                  "Fall ≥50% within 8 days supports drug causality."
-                ],
-                [
-                  "3",
-                  "Risk factors",
-                  "Female (+0), Age 43 (+0), underlying MASLD",
-                  "0",
-                  "Neither age nor sex adds RUCAM points; MASLD is a cofactor but not scored."
-                ],
-                [
-                  "4",
-                  "Concomitant drugs",
-                  "Metformin, Ramipril, Ibuprofen (non-hepatotoxic at recorded doses)",
-                  "0",
-                  "No confounding hepatotoxic co-medication recorded."
-                ],
-                [
-                  "5",
-                  "Exclusion of non-drug causes",
-                  "Negative viral serology, negative ANA/ASMA, no biliary obstruction on ultrasound",
-                  "+2",
-                  "Competing etiologies reasonably excluded."
-                ],
-                [
-                  "6",
-                  "Previous information on hepatotoxicity",
-                  "Methotrexate well-recognized hepatotoxin with documented DILI cases",
-                  "+2",
-                  "Established hepatotoxic risk."
-                ],
-                [
-                  "7",
-                  "Response to re-exposure",
-                  "Not applicable (no re-challenge)",
-                  "0",
-                  "---"
-                ]
-              ],
-              "total_score": 9,
-              "causality_category": "Highly Probable"
-            },
-            "ctcae": {
-              "title": "CTCAE Hepatic Toxicity Scoring",
-              "columns": [
-                "Criterion",
-                "Observed / Inferred",
-                "CTCAE Grade",
-                "Explanation"
-              ],
-              "rows": [
-                [
-                  "ALT/AST",
-                  "ALT 490 U/L (≈12× ULN), AST 350 U/L",
-                  "Grade 3",
-                  "ALT 5–20× ULN = Grade 3 severity."
-                ],
-                [
-                  "Total Bilirubin",
-                  "Bilirubin peaked at 190 μmol/L (≈11 mg/dL)",
-                  "Grade 3",
-                  ">3× ULN and clinical jaundice."
-                ],
-                [
-                  "INR / Coagulopathy",
-                  "INR remained 1.05–1.1 (normal)",
-                  "Grade 1",
-                  "No synthetic dysfunction; cannot qualify as Grade 4."
-                ],
-                [
-                  "Clinical Presentation",
-                  "Severe nausea, anorexia, jaundice; no hepatic encephalopathy",
-                  "Grade 2–3",
-                  "Significant symptoms without CNS involvement."
-                ]
-              ],
-              "overall_grade": "CTCAE Grade 3 — Severe but not life-threatening (no ALF or encephalopathy)"
-            },
-            "reasoning": "The patient developed acute severe hepatocellular DILI approximately 6 weeks after initiating Methotrexate. The trajectory shows progressive rise in ALT from 35 to 185 to 490 U/L, accompanied by marked jaundice and cholestasis. Viral, autoimmune, and biliary causes were excluded. INR remained stable and GCS remained 15 throughout hospitalization, confirming absence of acute liver failure. Ultrasound demonstrated severe MASLD, indicating chronic vulnerability. RUCAM score is 9 (highly probable). CTCAE grading corresponds to Grade 3 hepatic injury due to elevated bilirubin and transaminases without synthetic failure. Management appropriately included immediate MTX cessation, IV NAC protocol, hepatology admission, and initiation of UDCA."
-          }
-        }
+        "encounterNumber": 1,
+        "date": "2025-11-20",
+        "studyType": "Urgent Referral Letter",
+        "provider": "Dr. Richard Jenkins, MD",
+        "specialty": "General Practice",
+        "imageUrl": "/referal_letter.png",
+        "dataSource": "Midtown Primary Care"
       }
     },
-    "createdAt": "2025-10-14T16:50:19.477Z",
-    "updatedAt": "2025-11-21T08:36:24.123Z"
+    "createdAt": "2025-12-10T12:00:00.000Z",
+    "updatedAt": "2025-12-10T12:00:00.000Z"
   },
+   {
+        "id": "dashboard-item-patient-context",
+        "type": "component",
+        "x": -4029,
+        "y": 3700,
+        "width": 1600,
+        "height": "auto",
+        "componentType": "PatientContext",
+        "color": "#ffffff",
+        "description": "Marcus 'Mark' Elias Thorne is a 47-year-old male patient currently classified as high-risk, presenting with a primary diagnosis of Severe Acute Hepatitis or Acute Liver Injury of unknown etiology. His active problem list is dominated by signs of significant hepatic dysfunction, including acute jaundice, severe pruritus, and mild hepatomegaly, alongside a background comorbidity of obesity (BMI 31.5). His recent medical history highlights a dental abscess which was treated with a ten-day course of Amoxicillin-Clavulanate (Augmentin) from October 30 to November 9, 2025. Overlapping with and following this antibiotic course, he utilized Acetaminophen (both Tylenol PM and Extra Strength) frequently for pain relief until November 20, 2025. Given this temporal association, Suspected Drug-Induced Liver Injury (DILI) is currently being investigated as a primary differential. Consequently, safety alerts have been documented listing Amoxicillin-Clavulanate as the suspected causative agent for severe DILI (pending confirmation) and placing a restriction on Acetaminophen use due to its potential hepatotoxicity in his current state.",
+        "content": {
+            "title": "Patient Context",
+            "component": "PatientContext",
+            "props": {
+                "patientData": {
+                    "patient": {
+                        "name": "Marcus 'Mark' Elias Thorne",
+                        "date_of_birth": "1978-08-14",
+                        "age": 47,
+                        "sex": "Male",
+                        "age_at_first_encounter": 47,
+                        "identifiers": {
+                            "mrn": "MT78081499"
+                        }
+                    },
+                    "riskLevel": "high",
+                    "primaryDiagnosis": "Severe Acute Hepatitis / Acute Liver Injury of Unknown Etiology",
+                    "problem_list": [
+                        {
+                            "name": "Acute Jaundice",
+                            "status": "active"
+                        },
+                        {
+                            "name": "Severe Pruritus",
+                            "status": "active"
+                        },
+                        {
+                            "name": "Hepatomegaly (Mild)",
+                            "status": "active"
+                        },
+                        {
+                            "name": "Obesity (BMI 31.5)",
+                            "status": "active"
+                        },
+                        {
+                            "name": "Dental Abscess",
+                            "status": "resolved"
+                        },
+                        {
+                            "name": "Suspected Drug-Induced Liver Injury (DILI)",
+                            "status": "investigating"
+                        }
+                    ],
+                    "medication_timeline": [
+                        {
+                            "name": "Amoxicillin-Clavulanate (Augmentin)",
+                            "dose": "875 mg",
+                            "route": "PO",
+                            "frequency": "BID",
+                            "start": "2025-10-30",
+                            "end": "2025-11-09"
+                        },
+                        {
+                            "name": "Acetaminophen (Tylenol PM)",
+                            "dose": "500 mg",
+                            "route": "PO",
+                            "frequency": "PRN (Nightly)",
+                            "start": "2025-11-01",
+                            "end": "2025-11-20"
+                        },
+                        {
+                            "name": "Acetaminophen (Extra Strength)",
+                            "dose": "1000 mg",
+                            "route": "PO",
+                            "frequency": "PRN (Frequent use)",
+                            "start": "2025-11-01",
+                            "end": "2025-11-20"
+                        }
+                    ],
+                    "allergies": [
+                        "Amoxicillin-Clavulanate (Suspected severe DILI - pending confirmation)",
+                        "Acetaminophen (Potential Hepatotoxicity - restricted)"
+                    ]
+                }
+            }
+        },
+        "createdAt": "2025-10-14T16:16:23.245Z",
+        "updatedAt": "2025-11-21T08:36:27.123Z"
+    },
+{
+        "id": "dashboard-item-1759906219477-adverse-event-analytics",
+        "type": "component",
+        "x": -4031,
+        "y": 4444,
+        "width": 1600,
+        "height": "auto",
+        "componentType": "AdverseEventAnalytics",
+        "color": "#ffffff",
+        "description": "",
+        "content": {
+            "title": "Adverse Event Analytics",
+            "component": "AdverseEventAnalytics",
+            "props": {
+                "patientData": {
+                    "adverseEvents": [
+                        {
+                            "event": "Severe Acute Hepatocellular Hepatitis",
+                            "severity": "Severe",
+                            "description": "Marked elevation of transaminases with ALT 620 U/L (>11x ULN) and AST 450 U/L, indicating rapid hepatocellular necrosis."
+                        },
+                        {
+                            "event": "Overt Hyperbilirubinemia",
+                            "severity": "Severe",
+                            "description": "Total Bilirubin elevated to 5.2 mg/dL with clinical jaundice and severe generalized pruritus; biochemical pattern suggests mixed hepatocellular-cholestatic injury."
+                        },
+                        {
+                            "event": "Systemic Hypersensitivity Response",
+                            "severity": "Moderate",
+                            "description": "Peripheral blood Eosinophilia of 8.5% (Absolute 0.95 K/uL) coincident with liver dysfunction, suggesting an immuno-allergic mechanism."
+                        },
+                        {
+                            "event": "Hepatic Steatosis",
+                            "severity": "Moderate",
+                            "description": "Ultrasound evidence of diffuse fatty infiltration and hepatomegaly, indicating underlying metabolic susceptibility."
+                        }
+                    ],
+                    "rucam_ctcae_analysis": {
+                        "rucam": {
+                            "title": "Causality Assessment Scoring (Hepatocellular Pattern)",
+                            "columns": [
+                                "#",
+                                "Parameter",
+                                "Key findings from this case",
+                                "Score",
+                                "Explanation"
+                            ],
+                            "rows": [
+                                [
+                                    "1",
+                                    "Time to onset (from exposure to injury)",
+                                    "Exposure start ~3 weeks ago; Onset of jaundice ~2 days ago",
+                                    "+2",
+                                    "Onset falls within the suggestive 5–90 day latency period for idiosyncratic reaction."
+                                ],
+                                [
+                                    "2",
+                                    "Course after cessation",
+                                    "Agents stopped <24 hours ago; trajectory pending",
+                                    "0",
+                                    "Insufficient time to evaluate enzyme de-challenge response."
+                                ],
+                                [
+                                    "3",
+                                    "Risk factors",
+                                    "Age 47 (+0), Alcohol use (+1)",
+                                    "+1",
+                                    "Alcohol use is a potential risk factor for enhanced susceptibility."
+                                ],
+                                [
+                                    "4",
+                                    "Concomitant substances",
+                                    "Acetaminophen (Tylenol) frequent use",
+                                    "0",
+                                    "Concomitant agent has hepatotoxic potential, complicating causality."
+                                ],
+                                [
+                                    "5",
+                                    "Exclusion of non-exposure causes",
+                                    "Ultrasound negative for obstruction; Viral/Autoimmune pending",
+                                    "0",
+                                    "Mechanical obstruction excluded; serological exclusion required for higher score."
+                                ],
+                                [
+                                    "6",
+                                    "Previous information on agent",
+                                    "Suspected agent is a known hepatotoxin",
+                                    "+2",
+                                    "Class labeled as hepatotoxic in medical literature."
+                                ],
+                                [
+                                    "7",
+                                    "Response to re-exposure",
+                                    "Not applicable",
+                                    "0",
+                                    "---"
+                                ]
+                            ],
+                            "total_score": 5,
+                            "causality_category": "Possible (Pending Viral Exclusion)"
+                        },
+                        "ctcae": {
+                            "title": "CTCAE Hepatic Toxicity Scoring",
+                            "columns": [
+                                "Criterion",
+                                "Observed / Inferred",
+                                "CTCAE Grade",
+                                "Explanation"
+                            ],
+                            "rows": [
+                                [
+                                    "ALT (SGPT)",
+                                    "ALT 620 U/L (>11x ULN)",
+                                    "Grade 3",
+                                    ">5.0 - 20.0 x ULN indicates Grade 3 severity."
+                                ],
+                                [
+                                    "AST (SGOT)",
+                                    "AST 450 U/L (>11x ULN)",
+                                    "Grade 3",
+                                    ">5.0 - 20.0 x ULN indicates Grade 3 severity."
+                                ],
+                                [
+                                    "Total Bilirubin",
+                                    "Bilirubin 5.2 mg/dL (>3x ULN)",
+                                    "Grade 3",
+                                    ">3.0 x ULN indicates Grade 3 severity."
+                                ],
+                                [
+                                    "INR / Coagulopathy",
+                                    "INR 1.2 (Borderline elevated)",
+                                    "Grade 1",
+                                    ">1 - 1.5 x ULN; no bleeding symptoms reported."
+                                ]
+                            ],
+                            "overall_grade": "CTCAE Grade 3 — Severe adverse event requiring hospitalization"
+                        },
+                        "reasoning": "The patient presents with severe acute hepatocellular injury (ALT >10x ULN) accompanied by Grade 3 hyperbilirubinemia and clinical jaundice. The injury demonstrates a strong temporal correlation with a recent course of antibiotics (completed 1 week prior) and concurrent analgesic use. The presence of significant eosinophilia (8.5%) points towards a systemic hypersensitivity mechanism rather than a purely viral or ischemic etiology. Imaging has ruled out biliary obstruction. While synthetic function remains preserved (INR 1.2, Grade 1), the severity of the transaminitis warrants immediate cessation of all suspected agents and urgent monitoring for progression."
+                    }
+                }
+            }
+        },
+        "createdAt": "2025-10-14T16:50:19.477Z",
+        "updatedAt": "2025-11-21T08:36:24.123Z"
+    },
   {
     "id": "dashboard-item-1759906246155-lab-table",
     "type": "component",
@@ -706,72 +719,43 @@
     "createdAt": "2025-10-14T16:50:46.156Z",
     "updatedAt": "2025-11-21T08:36:34.517Z"
   },
-  {
-    "id": "dashboard-item-1759906246157-differential-diagnosis",
-    "type": "component",
-    "x": 620,
-    "y": 4911,
-    "width": 520,
-    "height": 500,
-    "componentType": "DifferentialDiagnosis",
-    "color": "#ffffff",
-    "description": "'Case :\n10. What is the treatment recommendation for the likely diagnosis?\nThe recommended treatment is immediate and permanent cessation of Methotrexate, which is identified as the definitive cause of her acute hepatocellular injury. This step was implemented urgently in Encounter 6 following worsening transaminitis and new-onset jaundice (ALT 490 U/L, bilirubin 110 μmol/L). She was admitted for hospital-based management, including intravenous N-acetylcysteine (NAC) following the 3-bag protocol, consistent with guidelines for severe hepatocellular DILI even when unrelated to paracetamol. Supportive care included close monitoring of INR, neurological status, and daily LFTs. The ultrasound confirmed no obstruction, supporting the DILI diagnosis.\n\nLong-term recommendations outlined in Encounter 7 include permanent Methotrexate contraindication, initiation of Ursodeoxycholic Acid (UDCA) for cholestasis, and arranging follow-up investigations such as Fibroscan in three months to assess for fibrosis progression. Rheumatology review is required to initiate a non-hepatotoxic alternative DMARD (e.g., Hydroxychloroquine or a biologic). Overall, the treatment approach focuses on removing the offending agent, treating acute hepatocellular injury, managing cholestatic symptoms, and avoiding future hepatotoxic medications.\n'",
-    "content": {
-      "title": "Differential Diagnosis",
-      "component": "DifferentialDiagnosis",
-      "props": {
-        "patientData": {
-          "encounters": [
-            {
-              "encounter_no": 6,
-              "assessment": {
-                "impression": "Severe acute Drug-Induced Liver Injury (DILI) secondary to Methotrexate with developing cholestasis",
-                "differential": [
-                  "Methotrexate-induced hepatocellular DILI (most likely)",
-                  "Acute-on-chronic liver injury due to underlying MASLD/MASH",
-                  "Acute viral hepatitis (HBV/HCV unlikely but part of workup)",
-                  "Autoimmune hepatitis (screen previously negative)",
-                  "Mechanical biliary obstruction (excluded by ultrasound)",
-                  "Ischemic hepatitis (no shock, normal hemodynamics)",
-                  "Sepsis-associated liver injury (no fever or hemodynamic instability)"
-                ]
-              },
-              "rucam_ctcae_analysis": {
-                "rucam": {
-                  "rows": [
-                    [
-                      "1",
-                      "Time to onset from drug start",
-                      "MTX started 2024-06-03 → severe DILI by 2024-08-12 (≈10 weeks)",
-                      "+2",
-                      "Typical 5–90 day window for idiosyncratic hepatocellular DILI."
-                    ],
-                    [
-                      "2",
-                      "Course after stopping drug",
-                      "ALT decreased from 490 → 420 within 3 days of cessation",
-                      "+3",
-                      "Supports drug causality (fall ≥50% in <8 days expected)."
-                    ],
-                    [
-                      "5",
-                      "Exclusion of non-drug causes",
-                      "Viral hepatitis panel negative; autoimmune markers negative; ultrasound showed no obstruction",
-                      "+2",
-                      "Alternative causes convincingly excluded."
+ {
+        "id": "dashboard-item-1759906246157-differential-diagnosis",
+        "type": "component",
+        "x": 620,
+        "y": 4911,
+        "width": 520,
+        "height": 500,
+        "componentType": "DifferentialDiagnosis",
+        "color": "#ffffff",
+        "description": "",
+        "content": {
+            "title": "Differential Diagnosis",
+            "component": "DifferentialDiagnosis",
+            "props": {
+                "patientData": {
+                    "encounters": [
+                        {
+                            "encounter_no": 1,
+                            "assessment": {
+                                "impression": "Severe Acute Hepatocellular Hepatitis with cholestasis and systemic eosinophilia, temporally associated with recent antimicrobial and analgesic exposure.",
+                                "differential": [
+                                    "Acute Viral Hepatitis (A, B, C, E - pending serology)",
+                                    "Autoimmune Hepatitis (consider given severity and eosinophilia)",
+                                    "Mechanical Biliary Obstruction (effectively excluded by ultrasound but clinically suggested)",
+                                    "Cholangitis (less likely given afebrile status)",
+                                    "Acetaminophen-associated hepatic injury"
+                                ]
+                            },
+                            "rucam_ctcae_analysis": {}
+                        }
                     ]
-                  ]
-                },
-                "reasoning": "The clinical pattern demonstrates severe hepatocellular injury with ALT 490 U/L, AST 350 U/L, and bilirubin >100 μmol/L. MTX exposure timeline fits perfectly for idiosyncratic hepatocellular DILI. Viral, autoimmune, and biliary causes were excluded through negative serology and normal biliary imaging. Hemodynamics remained stable, making ischemic hepatitis unlikely. No signs of infection to suggest sepsis-related liver injury. MASLD/MASH acted as a susceptibility factor but not the primary cause. Therefore, MTX toxicity remains the leading diagnosis."
-              }
+                }
             }
-          ]
-        }
-      }
+        },
+        "createdAt": "2025-10-14T16:50:46.157Z",
+        "updatedAt": "2025-11-24T15:05:21.702Z"
     },
-    "createdAt": "2025-10-14T16:50:46.157Z",
-    "updatedAt": "2025-11-24T15:05:21.702Z"
-  },
   {
     "id": "dashboard-item-1759906300003-single-encounter-1",
     "type": "component",
@@ -1546,330 +1530,108 @@
     "updatedAt": "2025-11-17T15:00:00.000Z"
   },
   {
-    "id": "raw-ice-lab-data-encounter-1",
+    "id": "raw-lab-image-1",
     "type": "component",
     "x": -5300,
     "y": -6100,
-    "width": 400,
+    "width": 500,
     "height": 600,
-    "componentType": "ICELabData",
+    "componentType": "RadiologyImage",
     "color": "#ffffff",
-    "description": "ICE Laboratory System - Encounter 1 Lab Results",
+    "description": "Lab Results Image 1",
     "content": {
-      "title": "ICE Lab - Encounter 1",
-      "component": "Lab",
+      "title": "Lab Results - Image 1",
+      "component": "RadiologyImage",
       "props": {
-        "encounters": [
-          {
-            "encounter": 1,
-            "tests": [
-              {
-                "name": "ALT",
-                "result": "78",
-                "unit": "U/L",
-                "reference_range": "< 40",
-                "flag": "H"
-              },
-              {
-                "name": "AST",
-                "result": "55",
-                "unit": "U/L",
-                "reference_range": "< 35",
-                "flag": "H"
-              },
-              {
-                "name": "ALP",
-                "result": "105",
-                "unit": "U/L",
-                "reference_range": "30-130",
-                "flag": ""
-              },
-              {
-                "name": "Bilirubin (Total)",
-                "result": "12",
-                "unit": "μmol/L",
-                "reference_range": "< 21",
-                "flag": ""
-              },
-              {
-                "name": "INR",
-                "result": "1.0",
-                "unit": "",
-                "reference_range": "0.8-1.2",
-                "flag": ""
-              },
-              {
-                "name": "HbA1c",
-                "result": "58",
-                "unit": "mmol/mol",
-                "reference_range": "< 48",
-                "flag": "H"
-              },
-              {
-                "name": "FBC: Platelets",
-                "result": "250",
-                "unit": "x10^9/L",
-                "reference_range": "150-400",
-                "flag": ""
-              }
-            ]
-          }
-        ]
+        "encounterNumber": 1,
+        "date": "2025-11-19",
+        "studyType": "Laboratory Results Panel 1",
+        "provider": "ICE Laboratory",
+        "specialty": "Clinical Chemistry",
+        "imageUrl": "/images/lab1.png",
+        "dataSource": "ICE Lab System"
       }
     },
-    "createdAt": "2025-10-17T12:00:00.000Z",
-    "updatedAt": "2025-11-17T16:00:00.000Z"
+    "createdAt": "2025-12-10T12:00:00.000Z",
+    "updatedAt": "2025-12-10T12:00:00.000Z"
   },
   {
-    "id": "raw-ice-lab-data-encounter-3",
+    "id": "raw-lab-image-2",
     "type": "component",
-    "x": -4850,
+    "x": -4750,
     "y": -6100,
-    "width": 400,
+    "width": 500,
     "height": 600,
-    "componentType": "ICELabData",
+    "componentType": "RadiologyImage",
     "color": "#ffffff",
-    "description": "ICE Laboratory System - Encounter 3 Lab Results. 'Case :\n7. From her other blood results, is there any evidence of liver cirrhosis?\nThere is no evidence to suggest established liver cirrhosis. Her synthetic liver function remains intact throughout — INR stays normal (1.0–1.1), and platelet counts are normal (250×10⁹/L), which strongly argues against portal hypertension or decompensated cirrhosis. The Fib-4 score of 0.9 in Encounter 3 places her firmly in the low-risk category for significant fibrosis or cirrhosis, and although a later Fib-4 rises to 1.8, this is during acute Methotrexate-induced liver injury and does not reflect chronic fibrosis. Additionally, ultrasound imaging shows steatotic/MASH changes without nodularity, ascites, or portal vein abnormalities, further excluding cirrhosis.\n\nWhile she does experience severe acute DILI with marked transaminitis and cholestasis later in her course, these represent acute hepatocellular injury, not chronic cirrhotic dysfunction. Overall, the combination of normal INR, normal platelets, low pre-injury Fib-4, and imaging without cirrhotic features provides strong, consistent evidence that she does not have cirrhosis.\n'",
+    "description": "Lab Results Image 2",
     "content": {
-      "title": "ICE Lab - Encounter 3",
-      "component": "Lab",
+      "title": "Lab Results - Image 2",
+      "component": "RadiologyImage",
       "props": {
-        "encounters": [
-          {
-            "encounter": 3,
-            "tests": [
-              {
-                "name": "ALT",
-                "result": "35",
-                "unit": "U/L",
-                "reference_range": "< 40",
-                "flag": ""
-              },
-              {
-                "name": "AST",
-                "result": "30",
-                "unit": "U/L",
-                "reference_range": "< 35",
-                "flag": ""
-              },
-              {
-                "name": "HBsAg/HCV Ab",
-                "result": "Negative",
-                "unit": "N",
-                "reference_range": "N",
-                "flag": ""
-              },
-              {
-                "name": "ANA/ASMA",
-                "result": "Negative",
-                "unit": "N",
-                "reference_range": "N",
-                "flag": ""
-              },
-              {
-                "name": "Fib-4 Index",
-                "result": "0.9",
-                "unit": "",
-                "reference_range": "< 1.3",
-                "flag": ""
-              },
-              {
-                "name": "HbA1c",
-                "result": "56",
-                "unit": "mmol/mol",
-                "reference_range": "<48",
-                "flag": "H"
-              }
-            ]
-          }
-        ]
+        "encounterNumber": 1,
+        "date": "2025-11-19",
+        "studyType": "Laboratory Results Panel 2",
+        "provider": "ICE Laboratory",
+        "specialty": "Clinical Chemistry",
+        "imageUrl": "/images/lab2.png",
+        "dataSource": "ICE Lab System"
       }
     },
-    "createdAt": "2025-10-17T12:00:00.000Z",
-    "updatedAt": "2025-11-17T16:00:00.000Z"
+    "createdAt": "2025-12-10T12:00:00.000Z",
+    "updatedAt": "2025-12-10T12:00:00.000Z"
   },
   {
-    "id": "raw-ice-lab-data-encounter-5",
+    "id": "raw-lab-image-nhs",
     "type": "component",
-    "x": -4400,
+    "x": -4200,
     "y": -6100,
-    "width": 400,
+    "width": 500,
     "height": 600,
-    "componentType": "ICELabData",
+    "componentType": "RadiologyImage",
     "color": "#ffffff",
-    "description": "ICE Laboratory System - Encounter 5 Lab Results",
+    "description": "NHS Screenshot",
     "content": {
-      "title": "ICE Lab - Encounter 5",
-      "component": "LabPage",
+      "title": "NHS System Screenshot",
+      "component": "RadiologyImage",
       "props": {
-        "encounters": [
-          {
-            "encounter": 5,
-            "tests": [
-              {
-                "name": "ALT",
-                "result": "185",
-                "unit": "U/L",
-                "reference_range": "< 40",
-                "flag": "H"
-              },
-              {
-                "name": "AST",
-                "result": "130",
-                "unit": "U/L",
-                "reference_range": "< 35",
-                "flag": "H"
-              },
-              {
-                "name": "Bilirubin (Total)",
-                "result": "15",
-                "unit": "$\\\\",
-                "reference_range": "< 21",
-                "flag": ""
-              },
-              {
-                "name": "HbA1c",
-                "result": "60",
-                "unit": "mmol/mol",
-                "reference_range": "<48",
-                "flag": "H"
-              },
-              {
-                "name": "INR",
-                "result": "1.05",
-                "unit": "",
-                "reference_range": "0.8-1.2",
-                "flag": ""
-              },
-              {
-                "name": "Fib-4 Score",
-                "result": "1.8",
-                "unit": "",
-                "reference_range": "< 1.3",
-                "flag": "H"
-              }
-            ]
-          }
-        ]
+        "encounterNumber": 1,
+        "date": "2025-11-19",
+        "studyType": "NHS System Data",
+        "provider": "NHS",
+        "specialty": "Clinical Records",
+        "imageUrl": "/images/nhs_screenshot.png",
+        "dataSource": "NHS System"
       }
     },
-    "createdAt": "2025-10-17T12:00:00.000Z",
-    "updatedAt": "2025-11-17T16:00:00.000Z"
+    "createdAt": "2025-12-10T12:00:00.000Z",
+    "updatedAt": "2025-12-10T12:00:00.000Z"
   },
   {
-    "id": "raw-ice-lab-data-encounter-6",
+    "id": "raw-lab-image-radiology",
     "type": "component",
-    "x": -3900,
+    "x": -3650,
     "y": -6100,
-    "width": 400,
+    "width": 500,
     "height": 600,
-    "componentType": "ICELabData",
+    "componentType": "RadiologyImage",
     "color": "#ffffff",
-    "description": "ICE Laboratory System - Encounter 6 Lab Results",
+    "description": "Radiology Image",
     "content": {
-      "title": "ICE Lab - Encounter 6",
-      "component": "ICE LLM Lab",
+      "title": "Radiology Imaging",
+      "component": "RadiologyImage",
       "props": {
-        "encounters": [
-          {
-            "encounter": 6,
-            "tests": [
-              {
-                "name": "ALT",
-                "result": "490",
-                "unit": "U/L",
-                "reference_range": "< 40",
-                "flag": "H"
-              },
-              {
-                "name": "AST",
-                "result": "350",
-                "unit": "U/L",
-                "reference_range": "< 35",
-                "flag": "H"
-              },
-              {
-                "name": "INR",
-                "result": "1.1",
-                "unit": "ratio",
-                "reference_range": "0.8-1.2",
-                "flag": ""
-              },
-              {
-                "name": "Bilirubin (Total)",
-                "result": "110",
-                "unit": "μmol/L",
-                "reference_range": "< 21",
-                "flag": "H"
-              },
-              {
-                "name": "MELD ",
-                "result": "9",
-                "unit": "",
-                "reference_range": "",
-                "flag": ""
-              }
-            ]
-          }
-        ]
+        "encounterNumber": 1,
+        "date": "2025-11-19",
+        "studyType": "Radiology Imaging Study",
+        "provider": "Radiology Department",
+        "specialty": "Radiology",
+        "imageUrl": "/images/radiology.png",
+        "dataSource": "Radiology PACS"
       }
     },
-    "createdAt": "2025-10-17T12:00:00.000Z",
-    "updatedAt": "2025-11-17T16:00:00.000Z"
-  },
-  {
-    "id": "raw-ice-lab-data-encounter-7",
-    "type": "component",
-    "x": -3420,
-    "y": -6100,
-    "width": 400,
-    "height": 600,
-    "componentType": "ICELabData",
-    "color": "#ffffff",
-    "description": "ICE Laboratory System - Encounter 7 Lab Results",
-    "content": {
-      "title": "ICE Lab - Encounter 7",
-      "component": "Lab",
-      "props": {
-        "encounters": [
-          {
-            "encounter": 7,
-            "tests": [
-              {
-                "name": "ALT",
-                "result": "420",
-                "unit": "U/L",
-                "reference_range": "< 40",
-                "flag": "H"
-              },
-              {
-                "name": "INR",
-                "result": "1.1",
-                "unit": "",
-                "reference_range": "0.8-1.2",
-                "flag": ""
-              },
-              {
-                "name": "Bilirubin (Total)",
-                "result": "190",
-                "unit": "\b0\b",
-                "reference_range": "< 21",
-                "flag": "H"
-              },
-              {
-                "name": "MELD Score",
-                "result": "10",
-                "unit": "",
-                "reference_range": "",
-                "flag": ""
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "createdAt": "2025-11-17T16:00:00.000Z",
-    "updatedAt": "2025-11-17T16:00:00.000Z"
+    "createdAt": "2025-12-10T12:00:00.000Z",
+    "updatedAt": "2025-12-10T12:00:00.000Z"
   },
   {
     "id": "raw-nervecentre-encounter-1",
@@ -2559,10 +2321,10 @@
     "type": "zone",
     "x": -5400,
     "y": -6200,
-    "width": 2400,
+    "width": 2300,
     "height": 900,
     "data": {
-      "label": "ICE Laboratory Data",
+      "label": "Lab Images Data",
       "color": "#3b82f6",
       "handlePosition": "top"
     },
@@ -2576,7 +2338,7 @@
     "selectable": false,
     "zIndex": -2,
     "createdAt": "2025-11-06T14:00:00.000Z",
-    "updatedAt": "2025-11-06T14:00:00.000Z"
+    "updatedAt": "2025-12-10T12:00:00.000Z"
   },
   {
     "id": "subzone-bighand",
