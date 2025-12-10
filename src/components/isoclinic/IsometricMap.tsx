@@ -420,7 +420,7 @@ const IsometricMap: React.FC = () => {
            
 
             <div className="space-y-2 lg:space-y-3">
-              <h2 className="text-[10px] lg:text-xs font-black text-slate-400 uppercase tracking-widest">Simulation Metrics</h2>
+              <h2 className="text-[10px] lg:text-xs font-black text-slate-400 uppercase tracking-widest">Metrics</h2>
               {[
                 { label: 'Total patients treated', value: treatedCount, color: 'text-slate-900' },
                 { label: 'Doctor : Patient ratio', value: `1 : ${totalSpawned}`, color: 'text-slate-900' },
@@ -448,7 +448,7 @@ const IsometricMap: React.FC = () => {
                 </div>
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] lg:text-xs font-medium text-slate-500">Standard Hepatologist</span>
+                    <span className="text-[10px] lg:text-xs font-medium text-slate-500">Standard Hepatology Clinic</span>
                     <span className="text-[10px] lg:text-xs font-bold text-slate-500">{STANDARD_THROUGHPUT}/h</span>
                   </div>
                   <div className="w-full h-2 lg:h-2.5 bg-slate-200 rounded-full overflow-hidden">
